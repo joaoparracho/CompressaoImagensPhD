@@ -35,25 +35,17 @@ void buildCodes(Node nd_Huff[],int nd_idx[],int num_leafnintern){
     }
 
 }
-void orderNodes(Node node[], unsigned int idx[],unsigned int len,char mode){
+void orderNodes(Node node[], unsigned int idx[],unsigned int len){
     Node nodeAux;
     unsigned int idxAux=0;
     for (int i = len-1; i >= 0; i--){
         for (int j = i-1; j >= 0; j--){
-            if(mode){
-                if(node[idx[i]].num_occur>node[idx[j]].num_occur){
-                    idxAux=idx[i];
-                    idx[i]=idx[j];
-                    idx[j]=idxAux;
-                }
+            if(node[idx[i]].num_occur>=node[idx[j]].num_occur && (node[idx[i]].num_occur==node[idx[j]].num_occur && node[idx[i]].type==LEAF)==0){
+                idxAux=idx[i];
+                idx[i]=idx[j];
+                idx[j]=idxAux;
             }
-            else{
-                if(node[idx[i]].lenght<=node[idx[j]].lenght && node[idx[i]].code<node[idx[j]].code){
-                    idxAux=idx[i];
-                    idx[i]=idx[j];
-                    idx[j]=idxAux;
-                }
-            }
+            
         }
     }
 }
@@ -74,10 +66,10 @@ void print_nodes(Node n[],int idx[],int num_elem){
 void print_codes(Node n[],int idx[],int num_elem){
     printf("\n=============\n");
     for (int i = 0; i < num_elem; i++){
-        if(n[idx[i]].type==LEAF){
+        //if(n[idx[i]].type==LEAF){
             printf("%c - ",n[idx[i]].ch);
             print_bin(n[idx[i]].code,n[idx[i]].lenght-1);
-        }
+        //}
     }
 }
 void buildTree(Node n[],int nd_idx[],int num_unique){
@@ -93,7 +85,12 @@ void buildTree(Node n[],int nd_idx[],int num_unique){
         n[nd_idx[id2]].ch='z';
         n[nd_idx[id2]].num_occur=n[nd_idx[id1]].num_occur+n[nd_idx[id1-1]].num_occur;
 
-        orderNodes(n,nd_idx,num_leafnintern,1);
+        orderNodes(n,nd_idx,num_leafnintern);
+
+        // for (int i = 0; i < num_leafnintern; i++){
+        //     printf("\n %c - %d",n[nd_idx[i]].ch,n[nd_idx[i]].num_occur);
+        // }
+        // printf("\n");
     }
 
 }
@@ -145,10 +142,10 @@ int main(int argc, char* argv[]){
         if(nd_Huff[i].num_occur!=0) num_unique++;
     }
     
-    orderNodes(nd_Huff,nd_idx,ASCII_SIZE,1);
+    orderNodes(nd_Huff,nd_idx,ASCII_SIZE);
    
     for (int i = 0; i < num_unique; i++){
-        //printf(" %c - %d - %0.5f \n",nd_Huff[nd_idx[i]].ch,nd_Huff[nd_idx[i]].num_occur,(float)nd_Huff[nd_idx[i]].num_occur/num_total);
+        printf(" %c - %d - %0.5f \n",nd_Huff[nd_idx[i]].ch,nd_Huff[nd_idx[i]].num_occur,(float)nd_Huff[nd_idx[i]].num_occur/num_total);
         prob+=(float)nd_Huff[nd_idx[i]].num_occur/num_total;
     }
     num_leafnintern=(num_unique<<1)-1;
@@ -168,6 +165,11 @@ int main(int argc, char* argv[]){
     buildCodes(nd_Huff,nd_idx,num_leafnintern);
 
     //print_codes(nd_Huff,nd_idx,num_leafnintern);
+
+    for (int i = 0; i < num_leafnintern; i++){
+        printf(" %c - %d - %0.5f \n",nd_Huff[nd_idx[i]].ch,nd_Huff[nd_idx[i]].num_occur,(float)nd_Huff[nd_idx[i]].num_occur/num_total);
+        prob+=(float)nd_Huff[nd_idx[i]].num_occur/num_total;
+    }
 
     
     fseek(fp_in, 0, SEEK_SET); //rewind the text file to the beggining
@@ -189,6 +191,7 @@ int main(int argc, char* argv[]){
                 for (int j = 0; j < nd_Huff[nd_idx[i]].lenght; j++){
                     
                  ch_aux = (ch_aux<<1) | ((nd_Huff[nd_idx[i]].code & (1 << j)) >> j);
+                // printf("%d ",((nd_Huff[nd_idx[i]].code & (1 << j)) >> j));
                  
                  numBits++;
                  compressedBits++;
@@ -205,7 +208,7 @@ int main(int argc, char* argv[]){
     }
 
     if(numBits>0){
-        ch_aux=ch_aux<<(8-numBits);
+        ch_aux=ch_aux<<(7-numBits);
         fputc(ch_aux,fp_out);
         numBits=0;
     }
@@ -287,6 +290,7 @@ int main(int argc, char* argv[]){
             }
             
             bit=((ch & (1 << i)) >> i );
+            //printf("%d ",bit);
             numBits_dec++;
             code = code | (bit<<numBits_dec) ;
 
