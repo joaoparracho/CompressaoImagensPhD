@@ -40,14 +40,20 @@ void orderNodes(Node node[], unsigned int idx[],unsigned int len){
     unsigned int idxAux=0;
     for (int i = len-1; i >= 0; i--){
         for (int j = i-1; j >= 0; j--){
-            if(node[idx[i]].num_occur>=node[idx[j]].num_occur && (node[idx[i]].num_occur==node[idx[j]].num_occur && node[idx[i]].type==LEAF)==0){
+            if(node[idx[i]].num_occur>node[idx[j]].num_occur ){
                 idxAux=idx[i];
                 idx[i]=idx[j];
                 idx[j]=idxAux;
             }
+            if(node[idx[i]].num_occur==node[idx[j]].num_occur&& (node[idx[i]].type==INTERNAL) && ( (node[idx[j]].type==LEAF) )){
+                idxAux=idx[i];
+                idx[i]=idx[j];
+                idx[j]=idxAux;
+
+            }
             
         }
-    }
+    }    
 }
 void print_bin(unsigned char value, unsigned int numChar){
     for (int i = sizeof(char) * numChar; i >= 0; i--)
@@ -87,11 +93,15 @@ void buildTree(Node n[],int nd_idx[],int num_unique){
 
         orderNodes(n,nd_idx,num_leafnintern);
 
-        // for (int i = 0; i < num_leafnintern; i++){
-        //     printf("\n %c - %d",n[nd_idx[i]].ch,n[nd_idx[i]].num_occur);
-        // }
-        // printf("\n");
+        for (int j = 0; j < num_leafnintern; j++){
+            printf("\n %c - %d",n[nd_idx[j]].ch,n[nd_idx[j]].num_occur);
+        }
+        printf("\n");
+
+        
     }
+
+    
 
 }
 
@@ -164,10 +174,10 @@ int main(int argc, char* argv[]){
 
     buildCodes(nd_Huff,nd_idx,num_leafnintern);
 
-    //print_codes(nd_Huff,nd_idx,num_leafnintern);
+    print_codes(nd_Huff,nd_idx,num_leafnintern);
 
     for (int i = 0; i < num_leafnintern; i++){
-        printf(" %c - %d - %0.5f \n",nd_Huff[nd_idx[i]].ch,nd_Huff[nd_idx[i]].num_occur,(float)nd_Huff[nd_idx[i]].num_occur/num_total);
+        printf("\n %c - %d - %0.5f",nd_Huff[nd_idx[i]].ch,nd_Huff[nd_idx[i]].num_occur,(float)nd_Huff[nd_idx[i]].num_occur/num_total);
         prob+=(float)nd_Huff[nd_idx[i]].num_occur/num_total;
     }
 
