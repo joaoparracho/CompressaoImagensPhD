@@ -56,6 +56,7 @@ void print_codes(Node n[],u_int16_t idx[],int num_elem){
     for (int i = 0; i < num_elem; i++){
         if(n[idx[i]].type==LEAF){
             printf("%c \t   %d   \t",n[idx[i]].ch,n[idx[i]].num_occur);
+            printf("   %d   \t",n[idx[i]].lenght);
             print_bin(n[idx[i]].code,n[idx[i]].lenght-1);
         }
     }

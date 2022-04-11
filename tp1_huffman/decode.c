@@ -10,6 +10,7 @@ int main(int argc, char* argv[]){
     u_int8_t num_unique=0;
     char ch=0;
     char mv=0;
+    u_int8_t numBits=0;
     u_int8_t bit;
     u_int8_t code=0;
     u_int8_t numBits_dec=0;
@@ -36,6 +37,10 @@ int main(int argc, char* argv[]){
     fp_out = fopen(argv[2],"wb");
 
     if((num_unique = getc(fp_in)) == EOF) {
+        printf("ERROR - INSERT A VALID .huff FILE");
+        return 0;
+    }
+    if((numBits = getc(fp_in)) == EOF) {
         printf("ERROR - INSERT A VALID .huff FILE");
         return 0;
     }
@@ -74,24 +79,28 @@ int main(int argc, char* argv[]){
     buildCodes(nd_Huff_dec,idx,num_leafnintern);
 
     node_aux=&nd_Huff_dec[idx[0]];
-    
-    while((ch = fgetc(fp_in)) != EOF) {
-        for (char i = 6; i >= 0; i--){
-
-            if(totalBits==huffBits){
-                printf("\nFile Decoded\n");
-                break;
-            }
+    int bitsTofile=0;
+    char i;
+    while(totalBits<huffBits) {
+        ch = fgetc(fp_in);
+        if(totalBits+numBits==totalBits){
+            i=numBits;
+        }
+        else{
+            i=7;
+        }
+        for (; i >= 0; i--){
             
             bit=((ch & (1 << i)) >> i );
             //printf("%d ",bit);
             numBits_dec++;
-            code = code | (bit<<numBits_dec) ;
+            totalBits++;
+            
 
             if(bit){
                 if(node_aux->right->type == LEAF){
                     fputc(node_aux->right->ch,fp_out);
-                    totalBits+=node_aux->right->lenght;
+                    //totalBits+=node_aux->right->lenght;
                     node_aux=&nd_Huff_dec[idx[0]];
                     numBits_dec=0;
                 }
@@ -102,7 +111,7 @@ int main(int argc, char* argv[]){
             else{
                 if(node_aux->left->type == LEAF){
                     fputc(node_aux->left->ch,fp_out);
-                    totalBits+=node_aux->left->lenght;
+                    //totalBits+=node_aux->left->lenght;
                     node_aux=&nd_Huff_dec[idx[0]];
                     numBits_dec=0;
                 }
@@ -111,7 +120,12 @@ int main(int argc, char* argv[]){
                 }
 
             }
+            if(totalBits==huffBits){
+                printf("\nFile Decoded\n");
+                break;
+            }
         }
+        //printf("\n");
         if(totalBits==huffBits){
             printf("\nFile Decoded\n");
             break;

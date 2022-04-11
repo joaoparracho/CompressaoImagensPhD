@@ -15,7 +15,7 @@ int main(int argc, char* argv[]){
     u_int8_t verbose=0;
     u_int8_t mv=0;
 
-    char ch_aux=0;
+    u_int8_t ch_aux=0;
     char ch;
 
     u_int16_t *nd_idx = (u_int16_t *) calloc(ASCII_SIZE,sizeof(u_int16_t));
@@ -83,6 +83,7 @@ int main(int argc, char* argv[]){
     
     fseek(fp_in, 0, SEEK_SET); //rewind the text file to the beggining
     fputc(num_unique,fp_out);
+    fputc(numBits,fp_out);
     putw(compressedBits,fp_out);
     fputc(mv,fp_out);
     
@@ -99,12 +100,14 @@ int main(int argc, char* argv[]){
             if(nd_Huff[nd_idx[i]].type==LEAF && nd_Huff[nd_idx[i]].ch==ch){
                 for (int j = 0; j < nd_Huff[nd_idx[i]].lenght; j++){
                  ch_aux = (ch_aux<<1) | ((nd_Huff[nd_idx[i]].code & (1 << j)) >> j);
+                 //printf("%d ",((nd_Huff[nd_idx[i]].code & (1 << j)) >> j));
                  numBits++;
                  compressedBits++;
                  // 7 porque eu quero que a tabela ASCII VA ate 128 -> 2**7
-                 if(numBits==7){
+                 if(numBits==8){
                      bytesW++;
                      fputc(ch_aux,fp_out);
+                     //printf("\n");
                      numBits=0;
                      ch_aux=0;
                  }
@@ -115,13 +118,16 @@ int main(int argc, char* argv[]){
     }
 
     if(numBits>0){
-        ch_aux=ch_aux<<(7-numBits);
+        //compressedBits=compressedBits-numBits;
+        ch_aux=ch_aux<<(8-numBits);
         fputc(ch_aux,fp_out);
+        printf("\n %d",numBits);
         bytesW++;
-        numBits=0;
+        //numBits=0;
     }
     
     fseek(fp_out, sizeof(num_unique), SEEK_SET );
+    fputc(numBits,fp_out);
     putw(compressedBits,fp_out);
     if(verbose){
         printf("\n\nNumber of unique symbols: %d symbols\n",num_unique);
