@@ -4,36 +4,57 @@
 int main(int argc, char* argv[]){
 
     FILE *fp_in, *fp_out;
-
     Node *nd_Huff_dec;
-    int huffBits=0;
-    unsigned int num_unique=0;
-    unsigned int num_leafnintern=0;
-    char ch=0;
+    Node *node_aux;
 
-    if((fp_in = fopen(argv[2],"rb"))==NULL){
+    u_int8_t num_unique=0;
+    char ch=0;
+    char mv=0;
+    u_int8_t bit;
+    u_int8_t code=0;
+    u_int8_t numBits_dec=0;
+    
+    u_int16_t num_leafnintern=0;
+    u_int16_t *idx;
+
+    u_int32_t huffBits=0;
+    u_int32_t totalBits=0;
+    
+
+    if(argc == 3){
+        printf("Decompressing file\n");
+    }
+    else {
+        printf("./encode Inputfile OutputFile\n");
+        return 0;
+    }
+
+    if((fp_in = fopen(argv[1],"rb"))==NULL){
 		printf("ERROR: No such file\n");
 		return 0;
 	}
-    fp_out = fopen(argv[3],"wb");
+    fp_out = fopen(argv[2],"wb");
 
-    if((num_unique = getw(fp_in)) == EOF) {
+    if((num_unique = getc(fp_in)) == EOF) {
         printf("ERROR - INSERT A VALID .huff FILE");
         return 0;
     }
+   
     if((huffBits = getw(fp_in)) == EOF) {
         printf("ERROR - INSERT A VALID .huff FILE");
         return 0;
     }
-    printf("\nREAD %d bits\n",huffBits);
-
+    if((mv = getc(fp_in)) == EOF) {
+        printf("ERROR - INSERT A VALID .huff FILE");
+        return 0;
+    }
+    printf("\nREAD %d bytes\n",huffBits);
+    
     num_leafnintern=(num_unique<<1)-1;
     nd_Huff_dec = (Node *)calloc(num_leafnintern,sizeof(Node));
-    int *idx = (int *)calloc(num_leafnintern,sizeof(int));
-    Node *node_aux;
+    idx = (u_int16_t *)calloc(num_leafnintern,sizeof(u_int16_t));
     
-
-    for (int i = 0; i < num_unique; i++){
+    for (u_int8_t i = 0; i < num_unique; i++){
         if((nd_Huff_dec[i].ch  = fgetc(fp_in)) == EOF){
             printf("ERROR - INSERT A VALID .huff FILE");
             return 0;
@@ -44,23 +65,15 @@ int main(int argc, char* argv[]){
         }
         idx[i]=i;
     }
-    for (int i = num_unique; i < num_leafnintern; i++){
+    for (u_int16_t i = num_unique; i < num_leafnintern; i++){
         idx[i]=i;
     }
 
     buildTree(nd_Huff_dec,idx, num_unique);
 
-    //print_nodes(nd_Huff_dec,idx,num_leafnintern);
-
     buildCodes(nd_Huff_dec,idx,num_leafnintern);
 
-    //print_codes(nd_Huff_dec,idx,num_leafnintern);
-
     node_aux=&nd_Huff_dec[idx[0]];
-    char bit;
-    char code=0;
-    char numBits_dec=0;
-    unsigned int totalBits=0;
     
     while((ch = fgetc(fp_in)) != EOF) {
         for (char i = 6; i >= 0; i--){
@@ -103,7 +116,6 @@ int main(int argc, char* argv[]){
             printf("\nFile Decoded\n");
             break;
         }
-    
     }
     
 

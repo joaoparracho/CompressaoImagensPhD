@@ -18,9 +18,10 @@ struct node{
 
 typedef struct node Node;
 
-void buildCodes(Node [],int [],int);
-void orderNodes(Node [], unsigned int [],unsigned int );
+void buildCodes(Node [],u_int16_t [],int);
+void orderNodes(Node [], u_int16_t [],unsigned int );
 void print_bin(unsigned char , unsigned  );
-void print_nodes(Node [],int [],int );
-void print_codes(Node [],int [],int );
-void buildTree(Node [],int [],int );
+void print_nodes(Node [],u_int16_t [],int );
+void print_codes(Node [],u_int16_t [],int );
+void buildTree(Node [],u_int16_t [],int );
+int isValidNumber(char number[]);

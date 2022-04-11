@@ -1,6 +1,6 @@
 #include "utils.h"
 
-void buildCodes(Node nd_Huff[],int nd_idx[],int num_leafnintern){
+void buildCodes(Node nd_Huff[],u_int16_t nd_idx[],int num_leafnintern){
 
     for (int i = 0; i < num_leafnintern; i++){
         if(nd_Huff[nd_idx[i]].type==INTERNAL){
@@ -16,7 +16,7 @@ void buildCodes(Node nd_Huff[],int nd_idx[],int num_leafnintern){
     }
 
 }
-void orderNodes(Node node[], unsigned int idx[],unsigned int len){
+void orderNodes(Node node[], u_int16_t idx[],unsigned int len){
     Node nodeAux;
     unsigned int idxAux=0;
     for (int i = len-1; i >= 0; i--){
@@ -36,12 +36,13 @@ void orderNodes(Node node[], unsigned int idx[],unsigned int len){
         }
     }    
 }
+
 void print_bin(unsigned char value, unsigned int numChar){
     for (int i = sizeof(char) * numChar; i >= 0; i--)
         printf("%d", (value & (1 << i)) >> i );
     putc('\n', stdout);
 }
-void print_nodes(Node n[],int idx[],int num_elem){
+void print_nodes(Node n[],u_int16_t idx[],int num_elem){
     printf("\n=================\n");
     for (int j = 0; j < num_elem; j++){
         printf(" %c - ",n[idx[j]].ch);
@@ -50,16 +51,16 @@ void print_nodes(Node n[],int idx[],int num_elem){
         printf("\n");
     }
 }
-void print_codes(Node n[],int idx[],int num_elem){
-    printf("\n=============\n");
+void print_codes(Node n[],u_int16_t idx[],int num_elem){
+    printf("\n====================================\n");
     for (int i = 0; i < num_elem; i++){
         if(n[idx[i]].type==LEAF){
-            printf("%c - ",n[idx[i]].ch);
+            printf("%c \t   %d   \t",n[idx[i]].ch,n[idx[i]].num_occur);
             print_bin(n[idx[i]].code,n[idx[i]].lenght-1);
         }
     }
 }
-void buildTree(Node n[],int nd_idx[],int num_unique){
+void buildTree(Node n[],u_int16_t nd_idx[],int num_unique){
     unsigned int num_leafnintern = (num_unique<<1)-1;
     unsigned int id1=num_unique-1;
     unsigned int id2=id1;
@@ -79,4 +80,15 @@ void buildTree(Node n[],int nd_idx[],int num_unique){
         // }
         // printf("\n");   
     }
+}
+int isValidNumber(char number[]){
+    int i=0;
+    if(number[0]=='-') return 0;
+    for(;number[i]!=0;i++){
+        if(number[i]>'9' || number[i]<'0'){
+            return 0;
+        }
+    }
+    return 1;
+    
 }
