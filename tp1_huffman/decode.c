@@ -78,18 +78,21 @@ int main(int argc, char* argv[]){
 
     buildCodes(nd_Huff_dec,idx,num_leafnintern);
 
+    print_codes(nd_Huff_dec,idx,num_leafnintern);
+
     node_aux=&nd_Huff_dec[idx[0]];
     int bitsTofile=0;
-    char i;
+    char j;
+    char aaa=0;
     while(totalBits<huffBits) {
         ch = fgetc(fp_in);
-        if(totalBits+numBits==totalBits){
-            i=numBits;
+        if((numBits>0) && (totalBits+numBits==huffBits)){
+            j=7-numBits;
         }
         else{
-            i=7;
+            j=0;
         }
-        for (; i >= 0; i--){
+        for (char i=7; i >= j; i--){
             
             bit=((ch & (1 << i)) >> i );
             //printf("%d ",bit);

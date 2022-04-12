@@ -121,7 +121,7 @@ int main(int argc, char* argv[]){
         //compressedBits=compressedBits-numBits;
         ch_aux=ch_aux<<(8-numBits);
         fputc(ch_aux,fp_out);
-        printf("\n %d",numBits);
+        //printf("\n %d",numBits);
         bytesW++;
         //numBits=0;
     }
