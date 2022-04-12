@@ -127,7 +127,8 @@ int main(int argc, char* argv[]){
         printf("Encoded stream size (without header): %d bytes\n",bytesW);
         printf("Encoded header size: %d bytes\n",num_unique*(4+1)+7);
         printf("Encoded stream size (with header): %d bytes\n",bytesW + num_unique*(4+1)+7);
-        printf("Compression rate: %.02f %% \n",(float)(1-(float)(bytesW + num_unique*(4+1)+7)/num_total)*100);
+        printf("Compression rate: %.02f \n",(float)(num_total/(float)(bytesW + num_unique*(4+1)+7)));
+        printf("Data rate saving: %.02f %% \n",(float)(1-(float)(bytesW + num_unique*(4+1)+7)/num_total)*100);
 
         float average_len=0.0;
         printf("Average Lenght of Input file: 8 bits/symbol\n");//%.02f\n",average_len);
