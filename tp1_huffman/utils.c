@@ -16,7 +16,7 @@ void buildCodes(Node nd_Huff[],u_int16_t nd_idx[],int num_leafnintern){
     }
 
 }
-void orderNodes(Node node[], u_int16_t idx[],unsigned int len){
+void orderNodes(Node node[], u_int16_t idx[],unsigned int len, char minimumVariance){
     Node nodeAux;
     unsigned int idxAux=0;
     for (int i = len-1; i >= 0; i--){
@@ -26,11 +26,12 @@ void orderNodes(Node node[], u_int16_t idx[],unsigned int len){
                 idx[i]=idx[j];
                 idx[j]=idxAux;
             }
-            if(node[idx[i]].num_occur==node[idx[j]].num_occur&& (node[idx[i]].type==INTERNAL) && ( (node[idx[j]].type==LEAF) )){
-                idxAux=idx[i];
-                idx[i]=idx[j];
-                idx[j]=idxAux;
-
+            if(minimumVariance){
+                if(node[idx[i]].num_occur==node[idx[j]].num_occur&& (node[idx[i]].type==INTERNAL) && ( (node[idx[j]].type==LEAF) )){
+                    idxAux=idx[i];
+                    idx[i]=idx[j];
+                    idx[j]=idxAux;
+                }
             }
             
         }
@@ -61,35 +62,24 @@ void print_codes(Node n[],u_int16_t idx[],int num_elem){
         }
     }
 }
-void buildTree(Node n[],u_int16_t nd_idx[],int num_unique){
+void buildTree(Node n[],u_int16_t nd_idx[],int num_unique,char minimumVariance){
     unsigned int num_leafnintern = (num_unique<<1)-1;
     unsigned int id1=num_unique-1;
     unsigned int id2=id1;
     for (int i = 0; i < num_unique-1; i++){
         id1=num_unique-1-i;
-        id2=num_unique+i;
-        n[nd_idx[id2]].left=&n[nd_idx[id1]];
-        n[nd_idx[id2]].right=&n[nd_idx[id1-1]];
+        id2=num_unique+i; //Index to the position with a Internal node that has not been initialised
+        n[nd_idx[id2]].left=&n[nd_idx[id1]]; // Gets the node with lower prob
+        n[nd_idx[id2]].right=&n[nd_idx[id1-1]]; // Gets the second node with lower prob
         n[nd_idx[id2]].type=INTERNAL;
         n[nd_idx[id2]].ch='z';
         n[nd_idx[id2]].num_occur=n[nd_idx[id1]].num_occur+n[nd_idx[id1-1]].num_occur;
 
-        orderNodes(n,nd_idx,num_leafnintern);
+        orderNodes(n,nd_idx,num_leafnintern,minimumVariance);
 
         // for (int j = 0; j < num_leafnintern; j++){
         //     printf("\n %c - %d",n[nd_idx[j]].ch,n[nd_idx[j]].num_occur);
         // }
         // printf("\n");   
     }
-}
-int isValidNumber(char number[]){
-    int i=0;
-    if(number[0]=='-') return 0;
-    for(;number[i]!=0;i++){
-        if(number[i]>'9' || number[i]<'0'){
-            return 0;
-        }
-    }
-    return 1;
-    
 }

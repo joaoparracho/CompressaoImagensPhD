@@ -1,6 +1,5 @@
 #include "utils.h"
 
-
 int main(int argc, char* argv[]){
 
     FILE *fp_in, *fp_out;
@@ -74,7 +73,7 @@ int main(int argc, char* argv[]){
         idx[i]=i;
     }
 
-    buildTree(nd_Huff_dec,idx, num_unique);
+    buildTree(nd_Huff_dec,idx, num_unique,mv);
 
     buildCodes(nd_Huff_dec,idx,num_leafnintern);
 
@@ -83,7 +82,6 @@ int main(int argc, char* argv[]){
     node_aux=&nd_Huff_dec[idx[0]];
     int bitsTofile=0;
     char j;
-    char aaa=0;
     while(totalBits<huffBits) {
         ch = fgetc(fp_in);
         if((numBits>0) && (totalBits+numBits==huffBits)){
@@ -95,15 +93,12 @@ int main(int argc, char* argv[]){
         for (char i=7; i >= j; i--){
             
             bit=((ch & (1 << i)) >> i );
-            //printf("%d ",bit);
             numBits_dec++;
             totalBits++;
             
-
             if(bit){
                 if(node_aux->right->type == LEAF){
                     fputc(node_aux->right->ch,fp_out);
-                    //totalBits+=node_aux->right->lenght;
                     node_aux=&nd_Huff_dec[idx[0]];
                     numBits_dec=0;
                 }
@@ -114,7 +109,6 @@ int main(int argc, char* argv[]){
             else{
                 if(node_aux->left->type == LEAF){
                     fputc(node_aux->left->ch,fp_out);
-                    //totalBits+=node_aux->left->lenght;
                     node_aux=&nd_Huff_dec[idx[0]];
                     numBits_dec=0;
                 }
@@ -128,7 +122,6 @@ int main(int argc, char* argv[]){
                 break;
             }
         }
-        //printf("\n");
         if(totalBits==huffBits){
             printf("\nFile Decoded\n");
             break;
