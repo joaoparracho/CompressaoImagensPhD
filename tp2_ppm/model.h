@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define MAX_ORDER 18
+#define MAX_ORDER 20
 
 static u_int8_t NUM_CHARS=42;
 static u_long NUM_NODES=80000000;
@@ -9,6 +9,8 @@ static u_long NUM_NODES=80000000;
 struct node {
 		u_int8_t symbol;
         unsigned long *right;        /* indx to the next node on the same level */ 
+		unsigned long last_node_added;
+		unsigned long r;
 		u_int8_t num_descendant;
         unsigned long num_escapes;
 		unsigned long cum_count;          /* symbol cumulative count */
@@ -26,3 +28,5 @@ void buildTrie(Node *node);
 int add_symbol(Node *trie,long *down_node, long* next_context, int16_t symbol, unsigned long *depth,unsigned long *idx_nodes,int *searching,unsigned long *idx_next_context,int *a);
 
 long search_symbol(Node *trie,long next_context, u_int8_t symbol);
+
+void print_right(Node *trie,long index);

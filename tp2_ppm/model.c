@@ -44,8 +44,6 @@ int main(int argc, char* argv[]){
 	trie = (Node*) malloc(NUM_NODES*sizeof(Node));
 	set_node(&trie[0],0,0,0,0,0,0,0);
 
-	//buildTrie(trie);
-
 	for (size_t i = 0; i < MAX_ORDER; i++){
 		init_escapes++;
 	}
@@ -58,13 +56,17 @@ int main(int argc, char* argv[]){
        while(!add_symbol(trie,&down_node, &next_context, ch, &depth,&idx_nodes,&searching,&idx_next_context,&a));
 	   // printf("-%d %c\n",ch,ch);
 	} 
-
-	printf("Hey");
 	
 	clock_t end = clock();
  
     // calculate elapsed time by finding difference (end - begin) and
     // dividing the difference by CLOCKS_PER_SEC to convert to seconds
+	// print_right(trie,0);
+	// print_right(trie,1);
+	// print_right(trie,3);
+	// print_right(trie,6);
+	// print_right(trie,13);
+
     time_spent += (double)(end - begin) / CLOCKS_PER_SEC;
 	printf("The elapsed time is %f seconds\n\n", time_spent);
     
@@ -80,13 +82,9 @@ void set_node(Node *node, int16_t _symbol, unsigned long _cum_count, long _down,
 	node->num_escapes = _num_escapes;
 	node->total_count = total_count;
 	node->num_descendant = _num_descendant;
-	node->right = (unsigned long*) malloc(NUM_CHARS*sizeof(unsigned long));
-}
-
-void buildTrie(Node *node){
-	for (long i = 0; i < NUM_NODES; i++) {
-		set_node(&node[i],-1,0,-1,-1,0,0,0);
-	}
+	//node->right = (unsigned long*) malloc(NUM_CHARS*sizeof(unsigned long));
+	node->r=0;
+	node->last_node_added=0;
 }
 
 int add_symbol(Node *trie,long *down_node, long* next_context, int16_t symbol,unsigned long *depth,unsigned long *idx_nodes,int *searching,unsigned long *idx_next_context,int *a){
@@ -116,30 +114,6 @@ int add_symbol(Node *trie,long *down_node, long* next_context, int16_t symbol,un
 	// }
 	// (*a)++;
 
-
-
-	//MODEL REACHED -1
-	//ROOT NOTE REACHED
-	// if(trie[*next_context].symbol== INIT_SMB && trie[trie[*next_context].down_node].symbol==INIT_SMB ){
-	// 	//*idx_nodes -> começa com o indice 1
-	// 	trie[0].total_count+=1;
-	// 	trie[0].right[trie[0].num_descendant++]=*idx_nodes;
-	// 	set_node(&trie[*idx_nodes],symbol,trie[0].total_count,0,0,0,0,0);
-		
-	// 	//so invrementa o indice idx_nodes no primeiro simbolo, depois é incrementado nos modelos de ordem maior
-	// 	if(*depth>1){
-	// 		trie[*idx_nodes-1].next_context = *idx_nodes;
-	// 	}
-	// 	else{
-	// 		(*next_context) = *idx_nodes;
-	// 		(*idx_next_context) = *idx_nodes;
-	// 	}
-	// 	(*idx_nodes)++;
-	// 	(*searching)=0;
-	// 	return 1;
-	// }
-	// if( symbol=='O' && (*next_context)==0)
-	// 	printf("_");
 	found_symb = search_symbol(trie,*next_context, symbol);
 
 
@@ -148,14 +122,27 @@ int add_symbol(Node *trie,long *down_node, long* next_context, int16_t symbol,un
 	//	parte para o proximo contexto
 	if(found_symb == -1){
 		//printf("%d,",*idx_nodes);
+		// if(symbol=='D'){
+		// 	printf("A");
+		// }
 		trie[(*next_context)].total_count+=1;
-		trie[(*next_context)].right[trie[(*next_context)].num_descendant++]=*idx_nodes;
+		trie[(*next_context)].num_descendant++;
+		//trie[(*next_context)].right[trie[(*next_context)].num_descendant++]=*idx_nodes;
+		
+		
 		// if(*next_context==0){
 		// 	printf("%c\n",symbol);
 		// }
 
 		//falta definir o ponteiro para o proximo contexto
 		set_node(&trie[*idx_nodes],symbol,trie[(*next_context)].total_count,*next_context,0,0,0,0);
+		
+		if(trie[(*next_context)].last_node_added!=0){
+			trie[*idx_nodes].r=trie[(*next_context)].last_node_added;
+		}
+		
+		trie[(*next_context)].last_node_added = *idx_nodes;
+
 		if ((*searching) == 1) {
 			(*idx_next_context) = (*idx_nodes);
 			(*searching) = 2;
@@ -183,12 +170,12 @@ int add_symbol(Node *trie,long *down_node, long* next_context, int16_t symbol,un
 		// 	printf("BUG_DETECTED");
 		// }
 		//printf("%d ()",trie[(*next_context)].right[found_symb]);
-		trie[trie[(*next_context)].right[found_symb]].cum_count++;
+		trie[found_symb].cum_count++;
 		if(trie[*idx_nodes-1].next_context==0){
-			trie[*idx_nodes-1].next_context=trie[(*next_context)].right[found_symb];
+			trie[*idx_nodes-1].next_context=found_symb;
 		}
 		else{
-			*idx_next_context = trie[(*next_context)].right[found_symb];
+			*idx_next_context = found_symb;
 		}
 		
 	
@@ -197,17 +184,35 @@ int add_symbol(Node *trie,long *down_node, long* next_context, int16_t symbol,un
 		return 1;
 	}
 
-	/* While the symbol at a given context is not found, output special escape
-	* symbol. */
+
 }
 
 
 long search_symbol(Node *trie,long next_context, u_int8_t symbol){
 	long found = -1;
-	for (u_int8_t i = 0; i < trie[next_context].num_descendant; i++){
+
+	for (unsigned long i = trie[next_context].last_node_added; i !=0; i = trie[i].r){
 		/* code */
-		if(trie[trie[next_context].right[i]].symbol == symbol)
+		if(trie[i].symbol == symbol)
 			return i;
+			//printf("%lu",i);
 	}
+
+	// for (u_int8_t i = 0; i < trie[next_context].num_descendant; i++){
+	// 	/* code */
+	// 	if(trie[trie[next_context].right[i]].symbol == symbol)
+	// 		return i;
+	// }
 	return found;
+}
+
+void print_right(Node *trie,long index){
+	long found = -1;
+
+	for (unsigned long i = trie[index].last_node_added; i !=0; i = trie[i].r){
+		printf("%c",trie[i].symbol);
+	}
+	printf("\n=========================\n");
+
+
 }
