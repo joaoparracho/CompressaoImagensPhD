@@ -58,7 +58,7 @@ void print_codes(Node n[],u_int16_t idx[],int num_elem){
     for (int i = 0; i < num_elem; i++){
         if(n[idx[i]].type==LEAF){
             printf("%c \t   %d   \t",n[idx[i]].ch,n[idx[i]].num_occur);
-            printf("   %d   \t",n[idx[i]].lenght);
+            printf("   %d  \t",n[idx[i]].lenght);
             print_bin(n[idx[i]].code,n[idx[i]].lenght-1);
         }
     }
@@ -78,9 +78,9 @@ void buildTree(Node n[],u_int16_t nd_idx[],int num_unique,char minimumVariance){
 
         orderNodes(n,nd_idx,num_leafnintern,minimumVariance);
 
-        for (int j = 0; j < num_leafnintern; j++){
-            printf("\n %c - %d",n[nd_idx[j]].ch,n[nd_idx[j]].num_occur);
-        }
-        printf("\n");   
+        // for (int j = 0; j < num_leafnintern; j++){
+        //     printf("\n %c - %d",n[nd_idx[j]].ch,n[nd_idx[j]].num_occur);
+        // }
+        // printf("\n");   
     }
 }

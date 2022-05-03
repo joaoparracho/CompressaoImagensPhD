@@ -1,6 +1,9 @@
 #include "utils.h"
-
+#include <time.h> 
 int main(int argc, char* argv[]){
+
+    double time_spent = 0.0;
+    clock_t begin = clock();
 
     FILE *fp_in, *fp_out;
     Node *nd_Huff_dec;
@@ -128,6 +131,13 @@ int main(int argc, char* argv[]){
         }
     }
     
+    clock_t end = clock();
+ 
+    // calculate elapsed time by finding difference (end - begin) and
+    // dividing the difference by CLOCKS_PER_SEC to convert to seconds
+    time_spent += (double)(end - begin) / CLOCKS_PER_SEC;
+
+    printf("The elapsed time is %f seconds\n\n", time_spent);
 
     fclose(fp_in);
     fclose(fp_out);

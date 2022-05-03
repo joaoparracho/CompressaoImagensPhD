@@ -1,7 +1,10 @@
 #include "utils.h"
-
+#include <time.h> 
 
 int main(int argc, char* argv[]){
+
+    double time_spent = 0.0;
+    clock_t begin = clock();
 
     FILE *fp_in, *fp_out;
 
@@ -120,6 +123,15 @@ int main(int argc, char* argv[]){
     fseek(fp_out, sizeof(num_unique), SEEK_SET );
     fputc(numBits,fp_out);
     putw(compressedBits,fp_out);
+
+    clock_t end = clock();
+ 
+    // calculate elapsed time by finding difference (end - begin) and
+    // dividing the difference by CLOCKS_PER_SEC to convert to seconds
+    time_spent += (double)(end - begin) / CLOCKS_PER_SEC;
+ 
+    
+
     if(verbose){
         printf("\n\nNumber of unique symbols: %d symbols\n",num_unique);
         print_codes(nd_Huff,nd_idx,num_leafnintern);
@@ -138,8 +150,9 @@ int main(int argc, char* argv[]){
                 average_len +=  (float)nd_Huff[nd_idx[i]].num_occur*nd_Huff[nd_idx[i]].lenght/num_total;
             }
         }
-        printf("Average Lenght of Encoded stream: %.02f bits/symbol\n\n",average_len);
+        printf("Average Lenght of Encoded stream: %.02f bits/symbol\n",average_len);
     }
+    printf("The elapsed time is %f seconds\n\n", time_spent);
 
     
     if((bytesW + num_unique*(4+1)+6)>num_total){
