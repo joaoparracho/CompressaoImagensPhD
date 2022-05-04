@@ -3,7 +3,7 @@
 
 /* SIZE OF ARITHMETIC CODE VALUES */
 
-#define Code_value_bits	22		/* Number of bits in a code value */
+#define Code_value_bits	31		/* Number of bits in a code value */
 typedef long code_value;		/* Type of an arithmetic code value */
 
 #define Top_value 	(((long)1<<Code_value_bits)-1)	/* Largest code value */
@@ -30,7 +30,14 @@ struct node {
 };
 
 
-
+// 17054573
+// 12503712
+// 10501830
+// 8497334
+// 7339142
+// 7039175
+// 7342786
+// 8003976
 
 
 typedef struct node Node;

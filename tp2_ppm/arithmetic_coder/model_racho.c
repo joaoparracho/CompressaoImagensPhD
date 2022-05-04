@@ -1,67 +1,65 @@
-#include "model.h"
+#include "model_racho.h"
 #include <time.h> 
+#include <math.h>
+// int main(int argc, char* argv[]){
 
-int main(int argc, char* argv[]){
+//     double time_spent = 0.0;
+//     clock_t begin = clock();
 
-    double time_spent = 0.0;
-    clock_t begin = clock();
+//     FILE *fp_in, *fp_out;
+// 	unsigned long depth=0;
+// 	int16_t ch;
+// 	int16_t num_escapes;
+// 	int searching=0;
+// 	unsigned long idx_next_context=0;
 
-    FILE *fp_in, *fp_out;
-	unsigned long depth=0;
-	int16_t ch;
-	int16_t num_escapes;
-	int searching=0;
-	unsigned long idx_next_context=0;
+// 	//index 0 reserved to ROOT
+// 	unsigned long idx_nodes=1;
+// 	long down_node;
+// 	long next_context;
+// 	long high=Top_value;
+// 	long low=0;
+// 	long range;
 
-	//index 0 reserved to ROOT
-	unsigned long idx_nodes=1;
-	long down_node;
-	long next_context;
-	long high;
-	long low;
-	long range;
+//     if(argc > 2 ){
+//         printf("Encoding file\n");
+//     }
+//     else {
+//         printf("./encode_ppm Inputfile OutputFile\n");
+//         return 0;
+//     }
 
-    if(argc > 2 ){
-        printf("Encoding file\n");
-    }
-    else {
-        printf("./encode_ppm Inputfile OutputFile\n");
-        return 0;
-    }
+// 	if((fp_in = fopen(argv[1],"r"))==NULL){
+// 		printf("ERROR: No such file\n");
+// 		return 0;
+// 	}
 
-	if((fp_in = fopen(argv[1],"r"))==NULL){
-		printf("ERROR: No such file\n");
-		return 0;
-	}
+//     fp_out = fopen(argv[2],"wb");
 
-    fp_out = fopen(argv[2],"wb");
+// 	static Node *trie;
+// 	trie = (Node*) malloc(NUM_NODES*sizeof(Node));
+// 	//Total Count a 1 por causa do <ESC>
+// 	set_node(&trie[0],0,0,0,0,0,1,0);
 
-	static Node *trie;
-	trie = (Node*) malloc(NUM_NODES*sizeof(Node));
-	//Total Count a 1 por causa do <ESC>
-	set_node(&trie[0],0,0,0,0,0,1,0);
-
-	while((ch = fgetc(fp_in)) != EOF) { 
-	   num_escapes=0;
-	   range = (long)(high - low) + 1;   
-	   //inicia a busca do contexto
-       while(!add_symbol(trie,&down_node, &next_context, ch, &depth,&idx_nodes,&searching,&idx_next_context,&num_escapes,&high,&low,range)){
-		   printf("%lu %lu\n",high,low);
-	   }
-	   //printf("send %d <ESC>\n",num_escapes);
-	} 
+// 	while((ch = fgetc(fp_in)) != EOF) { 
+// 	   num_escapes=0;
+// 	   range = (long)(high - low) + 1;   
+// 	   //inicia a busca do contexto
+//        while(!add_symbol(trie,&down_node, &next_context, ch, &depth,&idx_nodes,&searching,&idx_next_context,&num_escapes,&high,&low,range)){
+// 		  // printf("%lu %lu\n",high,low);
+// 	   }
+// 	   //printf("send %d <ESC>\n",num_escapes);
+// 	} 
 	
-	clock_t end = clock();
+// 	clock_t end = clock();
 
-    time_spent += (double)(end - begin) / CLOCKS_PER_SEC;
-	printf("The elapsed time is %f seconds\n\n", time_spent);
+//     time_spent += (double)(end - begin) / CLOCKS_PER_SEC;
+// 	printf("The elapsed time is %f seconds\n\n", time_spent);
 
-	// search_left_symbol(trie,trie[trie[24].down_node].last_node_added, trie[24].symbol);
-	// search_left_symbol(trie,trie[trie[10].down_node].last_node_added, trie[10].symbol);
-	// search_left_symbol(trie,trie[trie[13].down_node].last_node_added, trie[13].symbol);
-    
-
-}
+// 	// search_left_symbol(trie,trie[trie[3].down_node].first_node_added, trie[3].symbol);
+// 	// search_left_symbol(trie,trie[trie[10].down_node].first_node_added, trie[10].symbol);
+// 	// search_left_symbol(trie,trie[trie[13].down_node].last_node_added, trie[13].symbol);
+// }
 
 
 void set_node(Node *node, int16_t _symbol, unsigned long _cum_count, long _down, long _vine,unsigned long _first_node_added,unsigned long total_count,u_int8_t _num_descendant) {
@@ -106,7 +104,7 @@ int add_symbol(Node *trie,long *down_node, long* next_context, int16_t symbol,un
 		// calcular high e low para enviar um escape
 		// O Cum_Count do <ESC> vai ser sempre igual ao total count do contexto (PPMA)
 		*high = *low + (range * trie[(*next_context)].total_count) / trie[(*next_context)].total_count - 1; /* region to that   */
-  		*low  = *low + (range * trie[trie[(*next_context)].first_node_added].cum_count) / trie[(*next_context)].total_count;          /* allotted to this */
+  		*low  = *low + (range * trie[trie[(*next_context)].last_node_added].cum_count) / trie[(*next_context)].total_count;          /* allotted to this */
 		
 		trie[(*next_context)].total_count+=1;
 		trie[(*next_context)].num_descendant++;
@@ -118,8 +116,10 @@ int add_symbol(Node *trie,long *down_node, long* next_context, int16_t symbol,un
 		
 		
 		if(trie[(*next_context)].last_node_added!=0){
-			update_CumCount(trie,trie[(*next_context)].last_node_added);
-			trie[*idx_nodes].r=trie[(*next_context)].last_node_added;
+			trie[*idx_nodes].cum_count=trie[trie[(*next_context)].last_node_added].cum_count+1;
+			trie[trie[(*next_context)].last_node_added].r=*idx_nodes;
+			//update_CumCount(trie,*idx_nodes);
+			//trie[*idx_nodes].r=trie[(*next_context)].last_node_added;
 		}
 		
 		trie[(*next_context)].last_node_added = *idx_nodes;
@@ -148,23 +148,32 @@ int add_symbol(Node *trie,long *down_node, long* next_context, int16_t symbol,un
 	}
 	else{
 		
-		if(trie[*idx_nodes-1].next_context==0){ trie[*idx_nodes-1].next_context=found_symb;}
+		if(trie[*idx_nodes-1].next_context==0 && (trie[*idx_nodes-1].down_node!=0)){ trie[*idx_nodes-1].next_context=found_symb;}
 		else{ *idx_next_context = found_symb; }
 
 		
-		if(trie[found_symb].r==0){
-			*high = *low + (range * trie[trie[found_symb].down_node].total_count) / trie[trie[found_symb].down_node].total_count - 1;
-		}
-		else{
-			*high = *low + (range * trie[trie[found_symb].r].cum_count) / trie[trie[found_symb].down_node].total_count - 1;
-		}
-		 /* region to that   */
+		//if(found_symb==0){
+		//	*high = *low + (range * trie[trie[found_symb].down_node].total_count) / trie[trie[found_symb].down_node].total_count - 1;
+		//}
+		//else{
+			//*high = *low + (range * trie[trie[found_symb].r].cum_count) / trie[trie[found_symb].down_node].total_count - 1;
+		*high = *low + (range * trie[found_symb].cum_count) / trie[trie[found_symb].down_node].total_count - 1;
 		if(found_symb==trie[trie[found_symb].down_node].last_node_added){
-  			*low  = *low + (range * 0) / trie[trie[found_symb].down_node].total_count; /* allotted to this */
+			*low  = *low + (range * 0) / trie[trie[found_symb].down_node].total_count;
 		}
 		else{
-			*low  = *low + (range * trie[found_symb].cum_count) / trie[trie[found_symb].down_node].total_count;  /* allotted to this */
+			id_left=search_left_symbol(trie,trie[trie[found_symb].down_node].first_node_added, trie[found_symb].symbol);
+			*low  = *low + (range * trie[id_left].cum_count) / trie[trie[found_symb].down_node].total_count;  /* allotted to this */
 		}
+		// if(id_left)
+		//}
+		 /* region to that   */
+		// if(found_symb==trie[trie[found_symb].down_node].last_node_added){
+  		// 	*low  = *low + (range * 0) / trie[trie[found_symb].down_node].total_count; /* allotted to this */
+		// }
+		// else{
+		// 	*low  = *low + (range * trie[found_symb].cum_count) / trie[trie[found_symb].down_node].total_count;  /* allotted to this */
+		// }
 
 		update_CumCount_context(trie,found_symb);
 
@@ -178,7 +187,7 @@ int add_symbol(Node *trie,long *down_node, long* next_context, int16_t symbol,un
 long search_symbol(Node *trie,long next_context, u_int8_t symbol){
 	long found = -1;
 
-	for (unsigned long i = trie[next_context].last_node_added; i !=0; i = trie[i].r){
+	for (unsigned long i = trie[next_context].first_node_added; i !=0; i = trie[i].r){
 		/* code */
 		if(trie[i].symbol == symbol)
 			return i;

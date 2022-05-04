@@ -7,7 +7,7 @@
 
 void start_model();	
 void update_model(int);
-
+void start_model_racho(int num_unique,int idx_ch[]);
 /* THE SET OF SYMBOLS THAT MAY BE ENCODED */
 
 #define No_of_chars	128			            /* Number of character symbols */

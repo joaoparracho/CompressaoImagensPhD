@@ -15,7 +15,7 @@ void start_decoding(FILE *fp)
  int i;
  value = 0;				               
  for (i=1; i<=Code_value_bits; i++) 	
-	{	   							               	/* input bits to fill the 		*/
+	{	   							         /* input bits to fill the 		*/
      value = 2*value+input_bit(fp);		/* code value    				*/
   }
   low = 0;				                /* full code range   			*/
